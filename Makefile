@@ -1,6 +1,6 @@
 DIGITS := 0 1 2 3 4 5 6 7 8 9
-ALPHAS := a b
-SUITS := o
+ALPHAS := a b c d e f
+SUITS := o s
 RANKS := $(DIGITS) $(ALPHAS)
 CARDS := \
 	$(foreach r,$(RANKS),\
@@ -31,6 +31,7 @@ card-$s$r.png:
 			image over 0,0 0,0 suit-$s.png \
 			image over 0,-$(GRID) 0,0 rank-$r.png \
 		"\
+		-resize 50% \
 		$$@
 endef
 
