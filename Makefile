@@ -1,5 +1,7 @@
-RANKS := 0 1 a b
+DIGITS := 0 1 2 3 4 5 6 7 8 9
+ALPHAS := a b
 SUITS := o
+RANKS := $(DIGITS) $(ALPHAS)
 CARDS := \
 	$(foreach r,$(RANKS),\
 	$(foreach s,$(SUITS),\
@@ -13,46 +15,29 @@ GRID2 := $(shell echo '$(DPI) * 0.50' | bc)
 
 all: $(CARDS)
 
-card-%0.png: small-%.png
+define card
+card-$s$r.png:
+	@echo "making card-$s$r.png."
 	convert \
 		-size $(WIDTH)x$(HEIGHT) canvas:white \
 		-draw "\
-			gravity northwest \
-			image over $(GRID),$(GRID) 0,0 small-$*.png \
-			gravity southeast \
-			rotate 180 \
-			image over 0,0 0,0 small-$*.png \
-		"\
-		$@
-
-card-%1.png: card-%0.png pips-1.png
-	convert card-$*0.png \
-		-draw "\
-			gravity northwest \
-			image over $(GRID),$(GRID2) 0,0 pips-1.png \
-			gravity southeast \
-			rotate 180 \
-			image over 0,-$(GRID) 0,0 pips-1.png \
-		"\
-		$@
-
-card-%a.png: card-%0.png face-%.png face-a.png
-	convert card-$*0.png \
-		-draw "\
 			gravity center \
-			image over 0,0 0,0 face-$*.png \
-			image over 0,0 0,0 face-a.png \
+			image over 0,0 0,0 base-$3-$s.png \
+			image over 0,0 0,0 mask-$r.png \
+			gravity northwest \
+			image over $(GRID),$(GRID) 0,0 suit-$s.png \
+			image over $(GRID),$(GRID2) 0,0 rank-$r.png \
+			gravity southeast rotate 180 \
+			image over 0,0 0,0 suit-$s.png \
+			image over 0,-$(GRID) 0,0 rank-$r.png \
 		"\
-		$@
+		$$@
+endef
 
-card-%b.png: card-%0.png face-%.png face-b.png
-	convert card-$*0.png \
-		-draw "\
-			gravity center \
-			image over 0,0 0,0 face-$*.png \
-			image over 0,0 0,0 face-b.png \
-		"\
-		$@
+$(foreach s,$(SUITS),\
+	$(foreach r,$(DIGITS),$(eval $(call card,$s,$r,digit)))\
+	$(foreach r,$(ALPHAS),$(eval $(call card,$s,$r,alpha)))\
+)
 
 clean:
 	rm -f card*.png
