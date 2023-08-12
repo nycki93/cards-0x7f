@@ -6,13 +6,14 @@ CARDS := \
 		card-$(s)$(r).png))
 
 PPI := 300
-WIDTH := 2
-HEIGHT := 2.5
+WIDTH := 2.5
+HEIGHT := 3.5
 SPACING := 0.25
 W := $(shell echo '$(PPI) * $(WIDTH)' | bc)
 H := $(shell echo '$(PPI) * $(HEIGHT)' | bc)
 S := $(shell echo '$(PPI) * $(SPACING)' | bc)
 D := $(shell echo '$(S) / 5' | bc)
+DS := $(shell echo '$(D) * 1.25' | bc)
 WW := $(shell echo '$(W) / 2' | bc)
 HH := $(shell echo '$(H) / 2' | bc)
 SS := $(shell echo '$(S) / 2' | bc)
@@ -31,15 +32,15 @@ number-1.png: dot.png
 	convert -size $(S)x$(S) canvas:white \
 		-fill black \
 		-gravity center \
-		-draw "circle $(DD),$(DD) $(DD),$(D)" \
+		-draw 'image over 0,0 0,0 dot.png' \
 		$@
 
 number-2.png: dot.png
 	convert -size $(S)x$(S) canvas:white \
 		-draw "\
 			gravity center \
-			image over -$(D),$(D) 0,0 dot.png \
-			image over $(D),-$(D) 0,0 dot.png \
+			image over -$(DS),$(DS) 0,0 dot.png \
+			image over $(DS),-$(DS) 0,0 dot.png \
 		"\
 		$@
 
@@ -48,14 +49,14 @@ number-9.png: dot.png
 		-draw "\
 			gravity center \
 			image over 0,0 0,0 dot.png \
-			image over 0,$(D) 0,0 dot.png \
-			image over 0,-$(D) 0,0 dot.png \
-			image over $(D),0 0,0 dot.png \
-			image over $(D),$(D) 0,0 dot.png \
-			image over $(D),-$(D) 0,0 dot.png \
-			image over -$(D),0 0,0 dot.png \
-			image over -$(D),$(D) 0,0 dot.png \
-			image over -$(D),-$(D) 0,0 dot.png \
+			image over 0,$(DS) 0,0 dot.png \
+			image over 0,-$(DS) 0,0 dot.png \
+			image over $(DS),0 0,0 dot.png \
+			image over $(DS),$(DS) 0,0 dot.png \
+			image over $(DS),-$(DS) 0,0 dot.png \
+			image over -$(DS),0 0,0 dot.png \
+			image over -$(DS),$(DS) 0,0 dot.png \
+			image over -$(DS),-$(DS) 0,0 dot.png \
 		"\
 		$@
 
