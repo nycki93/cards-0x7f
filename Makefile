@@ -5,91 +5,130 @@ CARDS := \
 	$(foreach s,$(SUITS),\
 		card-$(s)$(r).png))
 
-all: $(CARDS)
+PPI := 300
+WIDTH := 2
+HEIGHT := 2.5
+SPACING := 0.25
+W := $(shell echo '$(PPI) * $(WIDTH)' | bc)
+H := $(shell echo '$(PPI) * $(HEIGHT)' | bc)
+S := $(shell echo '$(PPI) * $(SPACING)' | bc)
+D := $(shell echo '$(S) / 5' | bc)
+WW := $(shell echo '$(W) / 2' | bc)
+HH := $(shell echo '$(H) / 2' | bc)
+SS := $(shell echo '$(S) / 2' | bc)
+DD := $(shell echo '$(D) / 2' | bc)
+DW := $(shell echo '$(DD) * 0.75' | bc)
 
-symbol-o.png:
-	convert -size 25x25 canvas:transparent \
-		+antialias \
+all: $(CARDS) number-1.png number-2.png number-9.png
+
+dot.png:
+	convert -size $(D)x$(D) canvas:white \
+	-fill black \
+	-draw "translate $(DD),$(DD) circle 0,0 0,$(DW)" \
+	$@
+
+number-1.png: dot.png
+	convert -size $(S)x$(S) canvas:white \
+		-fill black \
+		-gravity center \
+		-draw "circle $(DD),$(DD) $(DD),$(D)" \
+		$@
+
+number-2.png: dot.png
+	convert -size $(S)x$(S) canvas:white \
 		-draw "\
-			translate 12.5,12.5 \
-			fill black \
-			circle 0,0 0,10 \
-			fill white \
-			circle 0,0 0,5 \
+			gravity center \
+			image over -$(D),$(D) 0,0 dot.png \
+			image over $(D),-$(D) 0,0 dot.png \
 		"\
 		$@
 
-symbol-o1.png:
-	convert \
-		-size 50x50 canvas:transparent \
-		+antialias \
+number-9.png: dot.png
+	convert -size 75x75 canvas:white \
 		-draw "\
-			translate 24.5,24.5 \
-			fill black \
-			circle 0,0 0,25 \
-			fill white \
-			circle 0,0 0,12.5 \
+			gravity center \
+			image over 0,0 0,0 dot.png \
+			image over 0,$(D) 0,0 dot.png \
+			image over 0,-$(D) 0,0 dot.png \
+			image over $(D),0 0,0 dot.png \
+			image over $(D),$(D) 0,0 dot.png \
+			image over $(D),-$(D) 0,0 dot.png \
+			image over -$(D),0 0,0 dot.png \
+			image over -$(D),$(D) 0,0 dot.png \
+			image over -$(D),-$(D) 0,0 dot.png \
 		"\
 		$@
 
-symbol-a.png:
-	convert \
-		-size 25x25 canvas:white \
+small-o.png:
+	convert -size 75x75 canvas:transparent \
 		+antialias \
-		-font Noto-Serif-Bold -fill black -pointsize 28 \
+		-fill black \
+		-draw "circle 38,38 38,5.5" \
+		-fill white \
+		-draw "circle 38,38 38,25.5" \
+		$@
+
+large-o.png:
+	convert \
+		-size 150x150 canvas:transparent \
+		-fill black \
+		-draw 'circle 74.5,74.5 74.5,10.5' \
+		$@
+
+small-a.png:
+	convert \
+		-size 75x75 canvas:white \
+		+antialias \
+		-font Noto-Serif-Bold -fill black -pointsize 84 \
 		-gravity center \
 		-annotate +1+0 A \
 		$@
 
-symbol-a1.png:
+large-a.png:
 	convert \
-		-size 100x100 canvas:white \
-		+antialias \
-		-font Noto-Serif-Bold -fill black -pointsize 100 \
+		-size 300x300 canvas:white \
+		-font Noto-Serif-Bold -fill black -pointsize 300 \
 		-gravity center \
-		-pointsize 100 \
-		-annotate +0+0 A \
+		-annotate +1+0 A \
 		$@
 
-base-o0.png: symbol-o.png
+card-%0.png: small-%.png
 	convert \
-		-size 200x350 canvas:white \
+		-size 600x1050 canvas:white \
 		-draw "\
 			gravity northwest \
-			image over 0,0 0,0 symbol-o.png \
-			gravity southeast \
-			image over 0,0 0,0 symbol-o.png \
-		"\
-		$@
-
-base-oa.png: card-o0.png symbol-a.png
-	convert card-o0.png \
-		-draw "\
-			gravity northwest \
-			image over 0,25 0,0 symbol-a.png \
+			image over 0,0 0,0 small-$*.png \
 			gravity southeast \
 			rotate 180 \
-			image over 25,0 0,0 symbol-a.png \
+			image over 75,75 0,0 small-$*.png \
 		"\
 		$@
 
-card-o0.png: base-o0.png
-	cp base-o0.png $@
-
-card-o1.png: base-o0.png symbol-o1.png
-	convert \
-		base-o0.png \
-		-draw 'image over 75,150 0,0 symbol-o1.png' \
+card-%1.png: card-%0.png number-9.png large-%.png
+	convert card-$*0.png \
+		-draw "\
+			image over 75,450 0,0 large-$*.png \
+			gravity northwest \
+			image over 0,75 0,0 number-9.png \
+			gravity southeast rotate 180 \
+			image over 75,0 0,0 number-9.png \
+		"\
 		$@
 
-card-oa.png: base-oa.png symbol-a1.png
-	convert base-oa.png \
-		-gravity center \
-		-draw 'image over 0,0 0,0 symbol-a1.png' \
+card-%a.png: card-%0.png small-a.png large-a.png
+	convert card-$*0.png \
+		-draw "\
+			gravity northwest \
+			image over 0,75 0,0 small-a.png \
+			gravity southeast rotate 180 \
+			image over 75,0 0,0 small-a.png \
+			gravity center rotate 180 \
+			image over 0,0 0,0 large-a.png \
+		"\
 		$@
 
 clean-temp:
-	rm symbol*.png base*.png
+	rm -f small*.png large*.png
 
 clean:
-	rm symbol*.png base*.png card*.png
+	rm -f *.png
