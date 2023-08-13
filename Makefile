@@ -1,6 +1,6 @@
 DIGITS := 0 1 2 3 4 5 6 7 8 9
 ALPHAS := a b c d e f
-SUITS := o s
+SUITS := o x t s
 RANKS := $(DIGITS) $(ALPHAS)
 CARDS := \
 	$(foreach r,$(RANKS),\
@@ -16,13 +16,13 @@ GRID2 := $(shell echo '$(DPI) * 0.50' | bc)
 all: $(CARDS)
 
 define card
-card-$s$r.png:
+card-$s$r.png: blank.png base-$1-$s.png mask-$r.png suit-$s.png rank-$r.png
 	@echo "making card-$s$r.png."
 	convert \
-		-size $(WIDTH)x$(HEIGHT) canvas:white \
+		blank.png \
 		-draw "\
 			gravity center \
-			image over 0,0 0,0 base-$3-$s.png \
+			image over 0,0 0,0 base-$1-$s.png \
 			image over 0,0 0,0 mask-$r.png \
 			gravity northwest \
 			image over $(GRID),$(GRID) 0,0 suit-$s.png \
@@ -36,8 +36,8 @@ card-$s$r.png:
 endef
 
 $(foreach s,$(SUITS),\
-	$(foreach r,$(DIGITS),$(eval $(call card,$s,$r,digit)))\
-	$(foreach r,$(ALPHAS),$(eval $(call card,$s,$r,alpha)))\
+	$(foreach r,$(DIGITS),$(eval $(call card,digit)))\
+	$(foreach r,$(ALPHAS),$(eval $(call card,alpha)))\
 )
 
 clean:
