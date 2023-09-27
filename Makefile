@@ -51,7 +51,7 @@ text-%.png:
 
 TEXT = text-$(word $(shell echo '5 * $r + 5' | bc),$(DATA)).png
 define card
-card-$s$r.png: blank.png base-$1-$s.png mask-$r.png suit-$s.png rank-$r.png index-$s$r.png $(TEXT)
+card-$s$r.png: blank.png base-$1-$s.png mask-$r.png suit-$s.png rank-$r.png 
 	@echo "making card-$s$r.png."
 	convert \
 		blank.png \
@@ -62,16 +62,10 @@ card-$s$r.png: blank.png base-$1-$s.png mask-$r.png suit-$s.png rank-$r.png inde
 			gravity northwest \
 			image over $(GRID),$(GRID) 0,0 suit-$s.png \
 			image over $(GRID),$(GRID2) 0,0 rank-$r.png \
-			gravity northeast \
-			image over $(GRID),$(GRID) 0,0 index-$s$r.png \
-			image over $(GRID),$(GRID2) 0,0 $(TEXT) \
 			rotate 180 \
 			gravity southeast \
 			image over 0,0 0,0 suit-$s.png \
 			image over 0,-$(GRID) 0,0 rank-$r.png \
-			gravity southwest \
-			image over -$(GRID3),0 0,0 index-$s$r.png \
-			image over -$(GRID3),-$(GRID) 0,0 $(TEXT) \
 		"\
 		-resize 50% \
 		$$@
